@@ -40,11 +40,15 @@ pub fn main() !void {
 }
 
 fn printHelp(writer: anytype) !void {
+    try writer.print("Spaces seperate inputs. Stacks are added to right to left. Ex: \". + 14 28\" will output 42.\n", .{});
+    try writer.print("[[:digit:]]: a value to be put on the value stack.\n", .{});
     try writer.print("plus: pop 2 values from the value stack. Add them and put that value into the value stack.\n", .{});
     try writer.print("minus: pop 2 values from the value stack. Subtract them and put that value into the value stack.\n", .{});
     try writer.print(".: pop and execute the top function from the function stack.\n", .{});
-    try writer.print("[[:digit:]]: a value to be put on the value stack.\n", .{});
-    try writer.print("\n", .{});
+    try writer.print("repeat: pop the top function and the top value (N) and execute the function N times.\n", .{});
+    try writer.print("duplicatev: duplicate the top value of the value stack.\n", .{});
+    try writer.print("duplicatef: duplicate the top function of the function stack.(Broken sometimes)\n", .{});
+    try writer.print("\n\n", .{});
 }
 
 const StackType = enum {
@@ -259,9 +263,4 @@ fn executeFunc(allocator: anytype, func: FuncType, stack_func: *std.ArrayList(Fu
     }
 }
 
-test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
-}
+// TODO: Try out writing tests
