@@ -88,22 +88,10 @@ const Token = union(enum) {
 };
 
 fn tokenize(allocator: anytype, string: []const u8) ![]Token {
-    var i: u32 = 0;
-    var string_buffer = std.ArrayList(u8).init(allocator);
-    defer string_buffer.deinit();
     var tokens = std.ArrayList(Token).init(allocator);
-    while (i < string.len) : (i += 1) {
-        if (string[i] == ' ') {
-            //Close and parse token
-            try tokens.append(parseToken(string_buffer.items));
-            string_buffer.shrinkAndFree(0);
-        } else {
-            //Add to string buffer
-            try string_buffer.append(string[i]);
-        }
-    }
-    if (string_buffer.items.len > 0) {
-        try tokens.append(parseToken(string_buffer.items));
+    var token_iterator = std.mem.tokenizeSequence(u8, string, " ");
+    while (token_iterator.next()) |item| {
+        try tokens.append(parseToken(item));
     }
     reverse(tokens.items);
     return tokens.items;
@@ -118,11 +106,11 @@ fn reverse(slice: anytype) void {
     }
 }
 
-fn eq(a: []u8, b: anytype) bool {
+fn eq(a: []const u8, b: anytype) bool {
     return std.mem.eql(u8, a, @as([]const u8, b));
 }
 
-fn parseToken(single_token_string: []u8) Token {
+fn parseToken(single_token_string: []const u8) Token {
     //std.debug.print("single_token_string: {s}\n", .{single_token_string});
     if (eq(single_token_string, "repeat")) {
         return Token{ .func = FuncType.Repeat };
